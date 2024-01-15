@@ -37,6 +37,7 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 6. **Installation Manuelle de la Clé (_si nécessaire_)**
 7. **👤 Création d'un Nouvel Utilisateur**
 8. **🔐 Désactivation de l'Authentification par Mot de Passe**
+9. **Installation de NGINX Ampify**
 
 ### 1.1 - 🌐 Connexion SSH Initiale
 
@@ -325,3 +326,59 @@ sudo ufw enable
 # Vérifier le statut du pare-feu
 sudo ufw status
 ```
+
+---
+
+## 5 - Nginx Amplify
+
+### 5.1 - Installation de Nginx Amplify
+
+Installation de nginx Amplify afin de bénéfier de métriques histoire dans savoir plus sur l'état de son server.
+
+-   Dans un premier temps, il faudra se créer un compte à cette adresse [https://www.nginx.com/products/nginx-amplify/](https://www.nginx.com/products/nginx-amplify/)
+-   Dans un second temps il faudra suivre les étapes
+    -   1 - Se connecter en SSH sur son serveur
+    -   2 - Télécharger le script d'installation
+    -   3 - Lancer la commande affiché en **root** pour installer Amplify Agent
+    -   4 - Enfin il faudra simplement cliquer sur le bouton `Continue`
+
+```bash
+# Au cas où, voici la commande pour se connecter en root
+sudo su
+
+# Vérification que l'aqent amplify est installé
+sudo service amplify-agent status
+
+# Si non démarrer
+sudo service amplify-agent start
+
+# Pour stoper le service
+sudo service amplify-agent stop
+```
+
+### 5.2 - Configuration Nginx pour visualiser les métriques
+
+(_Header violet_)
+
+Il faut simplement suivre chacune des étapes affiché à l'écran
+
+1. `cd /etc/nginx`
+2. `grep -i include\.*conf nginx.conf`
+3. `cat > conf.d/stub_status.conf`
+
+(_ci dessous c'est à copier coller_)
+
+```txt
+server {
+	listen 127.0.0.1:80;
+	server_name 127.0.0.1;
+	location /nginx_status {
+		stub_status on;
+		allow 127.0.0.1;
+		deny all;
+	}
+}
+```
+
+4. `ls -la conf.d/stub_status.conf && cat conf.d/stub_status.conf`
+5. `kill -HUP \`cat /var/run/nginx.pid\``
