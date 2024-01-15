@@ -314,7 +314,7 @@ sudo apt install ufw
 
 # Autoriser le trafic SSH sur les nouveaux ports
 sudo ufw allow 50001/tcp # Pour le premier VPS
-sudo ufw allow 50002/tcp # Pour le second VPS
+sudo ufw allow 50002/tcp # Pour le second VPS (si il y en a un)
 
 # Autoriser le trafic pour NGINX
 sudo ufw allow 'Nginx Full'
