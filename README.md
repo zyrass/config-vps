@@ -1,28 +1,30 @@
-# 📚 Guide de Configuration et Sécurisation d'un VPS
+# 📚 Guide Complet de Configuration et Sécurisation d'un VPS avec NGINX et NGINX Amplify
 
-> Ce guide complet vous offre une vue d'ensemble des étapes nécessaires pour configurer et sécuriser vos VPS, de la création des clés SSH à l'installation de NGINX et Docker, en passant par la configuration du pare-feu. Suivez ces étapes pour une mise en place réussie et sécurisée de votre environnement serveur. 🚀💼🔧🌐🔒
+> Ce guide approfondi vous guide pas à pas dans le processus de configuration et de sécurisation de votre VPS. Il couvre tout, depuis la création des clés SSH jusqu'à l'installation de NGINX, en passant par NGINX Amplify – un agent performant et optimisé – et Docker, ainsi que la configuration du pare-feu. Chaque étape est minutieusement détaillée pour assurer une mise en place efficace et une sécurité optimale de votre environnement serveur. 🚀💼🔧🌐🔒
 
 ---
 
 ## 📋 Pré-requis
 
-Avant de commencer, assurez-vous de disposer des éléments suivants :
+Avant de commencer, vérifiez que vous disposez de :
 
-1. **Un VPS avec Ubuntu Server pré-installé**.
-2. **Accès root ou avec privilèges sudo**.
-3. **Connaissance de base en ligne de commande Linux**.
-4. **Un client SSH installé sur votre machine locale**.
+1. **Un VPS avec Ubuntu Server déjà installé**.
+2. **Accès root ou avec des privilèges sudo**.
+3. **Connaissances de base en ligne de commande Linux**.
+4. **Un client SSH sur votre machine locale**
+
     - Par exemple, PuTTY pour Windows ou le terminal intégré dans Linux et macOS.
-    - Sur VS Code, 6 extensions bien utile que vous trouverez sur le [marketplace officiel](https://marketplace.visualstudio.com/vscode):
+    - Sur VS Code, utilisez ces extensions utiles disponibles sur le [marketplace officiel](https://marketplace.visualstudio.com/vscode) :
         - [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
         - [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
         - [Remote Exporer](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-explorer)
         - [Remote - SSH:Editing Configuration Files](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-edit)
         - [Remote - Tunnels](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
         - [Remote Repositories](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-repositories)
-5. **Connaissance de base de Docker et NGINX**.
 
-Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de vos VPS.
+5. **Notions de base sur Docker et NGINX**.
+
+Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de votre VPS.
 Suivez les étapes décrites dans ce guide pour une mise en place réussie et sécurisée de votre environnement serveur. 🚀💼🔧
 
 ---
@@ -46,31 +48,29 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 ssh utilisateur@adresse_ip_vps
 ```
 
--   Remplacez `utilisateur` par le nom d'utilisateur qui vous a été attribué (**_ubuntu_**) sur ovh.
--   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS qui vous a été transmit par mail.
+-   Remplacez `utilisateur` par votre nom d'utilisateur (ex: `ubuntu` pour un VPS OVH).
+-   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS, communiquée par email.
 
 ### 1.2 - Mettre à jour son VPS
 
-**Avoir votre distribution ou système d'exploitation à jour est un point essentiel pour sécuriser votre VPS.**
+Mettre à jour régulièrement votre système est crucial pour la sécurité du VPS.
 En effet, les développeurs de distributions et de systèmes d’exploitation proposent de fréquentes mises à jour de paquets, très souvent pour des raisons de sécurité.
 
--   Deux étapes sont nécessaires:
-    -   **Etape 1** - Mise à jour de la liste des paquets : `sudo apt update`
-    -   **Etape 2** - Mise à jour des paquets à proprement parler : `sudo apt upgrade -y`
-
 ```bash
-# Bonus - Mix des deux commandes en une
+# Mise à jour de la liste des paquets et des paquets eux-mêmes
 sudo apt update && sudo apt upgrade -y
 ```
 
-🔥 **IMPORTANT** - **Cette opération doit être effectuée régulièrement afin de maintenir un système à jour**.
+🔥 **IMPORTANT** - **Effectuez régulièrement cette opération pour maintenir un système à jour**.
 
-### 1.3 - Modifier le port d'écoute SSH par défaut 🚪
+### 1.3 - 🚪 Modification du Port d'Écoute SSH par Défaut
 
-L'une des premières actions à effectuer sur votre serveur est la configuration du port d'écoute du service SSH.
-**Par défaut, celui-ci est défini sur le port 22 donc les tentatives de hack du serveur par des robots vont cibler ce port en priorité**. La modification de ce paramètre, au profit d'un port différent, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées.
+Changer le port SSH par défaut (**22**) au profit d'un port différent réduit le risque d'attaques automatisées. (_tentatives de hack du serveur par des robots_)
+Utilisez un port non-standard, de préférence entre **49152** et **65535**.
 
-Pour cela, modifiez le fichier de configuration du service avec l'éditeur de texte de votre choix (_**nano** est utilisé dans cet exemple_) :
+> La modification de ce paramètre, a, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées. Pour cela, modifiez le fichier de configuration du service avec l'éditeur de texte de votre choix (_**nano** est utilisé dans le terminal dans cet exemple_) :
+
+**Exemple ici avec le port 50001** :
 
 ```bash
 # Passer en administrateur
@@ -99,10 +99,7 @@ Vous devriez trouver les lignes suivantes ou équivalentes :
 # ... encore d'autres lignes de code
 ```
 
-> Veillez toutefois à ne pas renseigner un numéro de port déjà utilisé sur votre système.
-> Pour plus de sécurité, utilisez un numéro entre **49152** et **65535**.
-
-_Pour l'exemple nous utiliserons le port 50001 pour nos tests, mais avant nous aurons décommentez la ligne correspondante soit :_
+Remplacez par
 
 ```bash
 # ... d'autres lignes de code
@@ -115,52 +112,57 @@ Port 50001
 # ... encore d'autres lignes de code
 ```
 
-Remplacez le nombre `22` par le numéro de port de **votre choix** (**_pour nous ici il s'agira du port 50001_**).
-Enregistrez avec la combinaison suivante `CTRL + S` et quittez le fichier de configuration avec la combinaison suivante `CTRL + X`.
+Donc ici, nous avons remplacé le nombre `22` par le numéro de port de suivant `50001`.
+Enregistrez (`CTRL + S`) et quittez (`CTRL + X`). Puis effectuez la commande suivante :
 
 ```bash
-# Redémarrer le service SSH pour appliquer les changements
+# Redémarrer le service SSH pour appliquer les changements.
 sudo systemctl restart sshd
 
+# En cas de problème, redémarrez le VPS : sudo reboot
 # Cela devrait être suffisant pour appliquer les changements.
 # Dans le cas contraire, redémarrez le VPS avec cette commande :
 sudo reboot
 ```
 
-⚠️ **ATENTION**
-Vous devrez indiquer le nouveau port à chaque demande de connexion SSH à votre serveur, par exemple :
+⚠️ **ATENTION** - Pour se connecter après ce changement :
 
 ```bash
 # Connexion au VPS via SSH avec le nouveau port
 ssh utilisateur@adresse_ip_vps -p 50001
 ```
 
+_Vous devrez indiquer le nouveau port à chaque demande de connexion SSH à votre serveur._
+
 ### 1.4 - 🔑 Création et Configuration des Clés SSH
 
 ```bash
-# Générer une nouvelle paire de clés SSH sur sa machine en local
-ssh-keygen -t ed25519 -C "un nom pour la décrire"
+# Générez une paire de clés SSH sur votre machine locale
+ssh-keygen -t ed25519 -C "description_de_la_cle"
 ```
 
 ### 1.5 - Copie de la Clé Publique sur le Serveur
 
-> ⚠️ _**ATTENTION** A BIEN COPIER EXCLUSIVEMENT LA CLE **id_ed25519.pub**_
+> ⚠️ **ATTENTION** - Assurez-vous de copier uniquement la clé **id_ed25519.pub**
 
 ```bash
 # Copier la clé publique sur le serveur VPS
 ssh-copy-id -i ./id_ed25519.pub utilisateur@ip_ovh
 ```
 
-### 1.6 - Installation Manuelle de la Clé (si nécessaire)
+### 1.6 - Installation Manuelle de la Clé (Si Nécessaire)
 
-sur windows, il est possible que la commande `ssh-copy-id` ne soit pas reconnue, ainsi donc veillez suivre les étapes suivantes:
+Sur Windows, si `ssh-copy-id` n'est pas disponible, suivez ces étapes :
 
 ```bash
 # Connexion au serveur VPS via SSH
 ssh utilisateur@ip_ovh
 
 # Accéder au dossier .ssh de l'utilisateur
-cd ~/.ssh
+cd .ssh
+
+# Afficher le contenue du répertoire caché ".ssh"
+ls -lah
 
 # Éditer le fichier authorized_keys pour ajouter la clé publique
 sudo nano authorized_keys
@@ -175,18 +177,20 @@ cat authorized_keys
 ### 1.7 - 👤 Création d'un Nouvel Utilisateur
 
 ```bash
-# Créer un nouvel utilisateur avec des droits restreints
+# Pour ajouter un utilisateur avec des droits restreints:
 sudo adduser nom_utilisateur
 
-# Créer un nouvel utilisateur avec des privilèges sudo
+# Pour ajouter un utilisateur avec des droits sudo :
 sudo adduser nom_utilisateur
 sudo usermod -aG sudo nom_utilisateur
 ```
 
 ### 1.8 - 🔐 Désactivation de l'Authentification par Mot de Passe
 
-Après avoir défini nos clés SSH et explusivement nos clé SSH, on pourra supprimer la connexion par mot de passe.
+Pour plus de sécurité, désactivez l'authentification par mot de passe.
 Pour celà, nous devons à nouveau modifier le fichier que l'on a modifié à l'étape `1.2`.
+
+> ⚠️ **ATTENTION** - Assurez-vous d'avoir copier votre clé ssh. Auquel cas la connexion sera impossible.
 
 ```bash
 # Déplacement dans le répertoire correspondant
@@ -196,19 +200,21 @@ cd /etc/ssh
 sudo nano sshd_config
 ```
 
-Dans le fichier, modifié l'authentification par mot de passe :
+Modifiez :
 
 ```bash
-# Modifier les lignes suivantes : (Origine)
-PasswordAuthentication yes # Changez la valeur en mettant no
-PermitRootLogin yes # Changez la valeur en mettant no
+PasswordAuthentication yes
+PermitRootLogin yes
+```
 
-# Soit vous devriez obtenir: (Modifié)
+en :
+
+```bash
 PasswordAuthentication no
 PermitRootLogin no
 ```
 
-Enregistrer de nouveau le fichier avec la combinaison suivante `CTRL + S` et fermer nano avec la cette autre combinaison de touches `CTRL + X`.
+Enregistrez (`CTRL + S`) et quittez (`CTRL + X`), puis redémarrez SSH.
 
 ---
 
@@ -218,20 +224,18 @@ Enregistrer de nouveau le fichier avec la combinaison suivante `CTRL + S` et fer
 
 ```bash
 # Mettre à jour les paquets et installer NGINX
-sudo apt update && sudo apt upgrade -y
-sudo apt install nginx
+sudo apt update && sudo apt upgrade -y && sudo apt install nginx
 
 # Démarrer et activer NGINX
-sudo systemctl start nginx
-sudo systemctl enable nginx
+sudo systemctl start nginx # Démarre
+sudo systemctl enable nginx # Active au démarrage
 ```
 
 ### 📄 2.2 Configuration de NGINX pour Plusieurs Sites
 
-> **NOTE:**
-> Répétez chacune des étapes suivantes pour chaque site
+**NOTE:** - Répétez ces étapes pour chaque site :
 
-```sh
+```bash
 # Créer un répertoire pour le site et configurer les permissions
 sudo mkdir -p /var/www/site1.com/html
 sudo chown -R $USER:$USER /var/www/site1.com/html
@@ -256,7 +260,7 @@ sudo systemctl restart nginx
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh ./get-docker.sh --dry-run
 
-# Vérification que docker est bien installer
+# Vérification de l'installation
 docker -v
 ```
 
@@ -292,7 +296,7 @@ docker stop docker-nginx
 docker rm docker-nginx
 ```
 
-**Ouvrir un navigateur et saisir localhost dans la barre d'adresse afin de voir le serveur ngnx de lancé**
+**Visitez `localhost` dans votre navigateur pour voir NGINX en action.**
 
 ### 3.2 Lancer le Service NGINX
 
@@ -331,54 +335,76 @@ sudo ufw status
 
 ## 5 - Nginx Amplify
 
-### 5.1 - Installation de Nginx Amplify
+### 5.1 - Installation de NGINX Amplify 🔧
 
-Installation de nginx Amplify afin de bénéfier de métriques histoire dans savoir plus sur l'état de son server.
+NGINX Amplify est un outil performant offrant des métriques détaillées pour surveiller l'état de votre serveur NGINX.
 
--   Dans un premier temps, il faudra se créer un compte à cette adresse [https://www.nginx.com/products/nginx-amplify/](https://www.nginx.com/products/nginx-amplify/)
--   Dans un second temps il faudra suivre les étapes
-    -   1 - Se connecter en SSH sur son serveur
-    -   2 - Télécharger le script d'installation
-    -   3 - Lancer la commande affiché en **root** pour installer Amplify Agent
-    -   4 - Enfin il faudra simplement cliquer sur le bouton `Continue`
+Pour l'installer :
+
+1. **Créez un compte sur NGINX Amplify** 📝: Rendez-vous sur [le site de NGINX Amplify](https://www.nginx.com/products/nginx-amplify/) pour vous inscrire.
+2. **Téléchargez et installez l'agent NGINX Amplify**
+
+Connectez-vous en SSH à votre serveur et suivez ces étapes :
+
+-   Connectez-vous en tant que root 👤:
 
 ```bash
 # Au cas où, voici la commande pour se connecter en root
 sudo su
+```
 
-# Vérification que l'aqent amplify est installé
+-   Téléchargez 📥 le script d'installation.
+-   Exécutez la commande d'installation en tant que root 👨‍💻.
+-   Suivez les instructions à l'écran et cliquez sur `Continue` ✅.
+
+Pour vérifier et gérer l'agent NGINX Amplify :
+
+```bash
+# Vérifier si l'agent NGINX Amplify est installé et actif 🔍
 sudo service amplify-agent status
 
-# Si non démarrer
+# Démarrer l'agent NGINX Amplify, si nécessaire 🟢
 sudo service amplify-agent start
 
-# Pour stoper le service
+# Arrêter l'agent NGINX Amplify 🔴
 sudo service amplify-agent stop
 ```
 
-### 5.2 - Configuration Nginx pour visualiser les métriques
+### 5.2 - Configuration Nginx pour visualiser les métriques 📊
 
-(_Header violet_)
+Pour configurer NGINX afin de visualiser les métriques avec NGINX Amplify, suivez ces étapes : (_Header violet_)
 
 Il faut simplement suivre chacune des étapes affiché à l'écran
 
-1. `cd /etc/nginx`
-2. `grep -i include\.*conf nginx.conf`
-3. `cat > conf.d/stub_status.conf`
-
-(_ci dessous c'est à copier coller_)
-
-```txt
-server {
-	listen 127.0.0.1:80;
-	server_name 127.0.0.1;
-	location /nginx_status {
-		stub_status on;
-		allow 127.0.0.1;
-		deny all;
-	}
-}
-```
-
-4. `ls -la conf.d/stub_status.conf && cat conf.d/stub_status.conf`
-5. `kill -HUP \`cat /var/run/nginx.pid\``
+1. Accédez au répertoire de configuration de NGINX 📁:
+    ```bash
+    cd /etc/nginx
+    ```
+2. Vérifiez que les fichiers de configuration additionnels sont inclus 🔍:
+    ```bash
+    grep -i include\.*conf nginx.conf
+    ```
+3. Créez une nouvelle configuration pour `stub_status` 📝:
+    ```bash
+    cat > conf.d/stub_status.conf
+    ```
+    Puis, copiez et collez le contenu suivant 📋:
+    ```nginx
+    server {
+        listen 127.0.0.1:80;
+        server_name 127.0.0.1;
+        location /nginx_status {
+            stub_status on;
+            allow 127.0.0.1;
+            deny all;
+        }
+    }
+    ```
+4. Vérifiez et affichez le contenu du fichier de configuration 🖥️:
+    ```bash
+    ls -la conf.d/stub_status.conf && cat conf.d/stub_status.conf
+    ```
+5. Rechargez la configuration NGINX 🔁:
+    ```bash
+    kill -HUP `cat /var/run/nginx.pid`
+    ```
