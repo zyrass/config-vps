@@ -1,4 +1,4 @@
-# 📚 Guide de Configuration et Sécurisation de VPS
+# 📚 Guide de Configuration et Sécurisation d'un VPS
 
 > Ce guide complet vous offre une vue d'ensemble des étapes nécessaires pour configurer et sécuriser vos VPS, de la création des clés SSH à l'installation de NGINX et Docker, en passant par la configuration du pare-feu. Suivez ces étapes pour une mise en place réussie et sécurisée de votre environnement serveur. 🚀💼🔧🌐🔒
 
@@ -8,7 +8,7 @@
 
 Avant de commencer, assurez-vous de disposer des éléments suivants :
 
-1. **Deux VPS avec Ubuntu Server pré-installé**.
+1. **Un VPS avec Ubuntu Server pré-installé**.
 2. **Accès root ou avec privilèges sudo**.
 3. **Connaissance de base en ligne de commande Linux**.
 4. **Un client SSH installé sur votre machine locale**.
@@ -27,16 +27,121 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 
 ---
 
-## 🔑 1 - Création et Configuration des Clés SSH
+## 1 - Configuration Initiale de son VPS
 
-### 1.1 Création d'une Paire de Clés SSH
+1. **🌐 Connexion SSH Initiale**
+2. **Mettre à jour son VPS**
+3. **🚪 Modifier le port d'écoute SSH par défaut**
+4. **🔑 Création et Configuration des Clés SSH**
+5. **Copie de la Clé Publique sur le Serveur**
+6. **Installation Manuelle de la Clé (_si nécessaire_)**
+7. **👤 Création d'un Nouvel Utilisateur**
+8. **🔐 Désactivation de l'Authentification par Mot de Passe**
+
+### 1.1 - 🌐 Connexion SSH Initiale
+
+```sh
+# Connexion au VPS via SSH
+ssh utilisateur@adresse_ip_vps
+```
+
+-   Remplacez `utilisateur` par le nom d'utilisateur qui vous a été attribué (**_ubuntu_**) sur ovh.
+-   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS qui vous a été transmit par mail.
+
+### 1.2 - Mettre à jour son VPS
+
+**Avoir votre distribution ou système d'exploitation à jour est un point essentiel pour sécuriser votre VPS.**
+En effet, les développeurs de distributions et de systèmes d’exploitation proposent de fréquentes mises à jour de paquets, très souvent pour des raisons de sécurité.
+
+-   Deux étapes sont nécessaires:
+    -   **Etape 1** - Mise à jour de la liste des paquets : `sudo apt update`
+    -   **Etape 2** - Mise à jour des paquets à proprement parler : `sudo apt upgrade -y`
+
+```bash
+# Bonus - Mix des deux commandes en une
+sudo apt update && sudo apt upgrade -y
+```
+
+🔥 **IMPORTANT** - **Cette opération doit être effectuée régulièrement afin de maintenir un système à jour**.
+
+### 1.3 - Modifier le port d'écoute SSH par défaut 🚪
+
+L'une des premières actions à effectuer sur votre serveur est la configuration du port d'écoute du service SSH.
+**Par défaut, celui-ci est défini sur le port 22 donc les tentatives de hack du serveur par des robots vont cibler ce port en priorité**. La modification de ce paramètre, au profit d'un port différent, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées.
+
+Pour cela, modifiez le fichier de configuration du service avec l'éditeur de texte de votre choix (_**nano** est utilisé dans cet exemple_) :
+
+```bash
+# Passer en administrateur
+sudo su
+
+# Edition du fichier sshd_config se trouvant dans le répertoire /etc/ssh/
+cd /etc/ssh
+
+# Voir le contenu du répertoire ssh
+ls ssh
+
+# Edition du fichier de configuration avec nano
+nano sshd_config
+```
+
+Vous devriez trouver les lignes suivantes ou équivalentes :
+
+```sh
+# ... d'autres lignes de code
+
+#Port 22
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+# ... encore d'autres lignes de code
+```
+
+> Veillez toutefois à ne pas renseigner un numéro de port déjà utilisé sur votre système.
+> Pour plus de sécurité, utilisez un numéro entre **49152** et **65535**.
+
+_Pour l'exemple nous utiliserons le port 50001 pour nos tests, mais avant nous aurons décommentez la ligne correspondante soit :_
+
+```bash
+# ... d'autres lignes de code
+
+Port 50001
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+# ... encore d'autres lignes de code
+```
+
+Remplacez le nombre `22` par le numéro de port de **votre choix** (**_pour nous ici il s'agira du port 50001_**).
+Enregistrez avec la combinaison suivante `CTRL + S` et quittez le fichier de configuration avec la combinaison suivante `CTRL + X`.
+
+```bash
+# Redémarrer le service SSH pour appliquer les changements
+sudo systemctl restart sshd
+
+# Cela devrait être suffisant pour appliquer les changements.
+# Dans le cas contraire, redémarrez le VPS avec cette commande :
+sudo reboot
+```
+
+⚠️ **ATENTION**
+Vous devrez indiquer le nouveau port à chaque demande de connexion SSH à votre serveur, par exemple :
+
+```bash
+# Connexion au VPS via SSH avec le nouveau port
+ssh utilisateur@adresse_ip_vps -p 50001
+```
+
+### 1.4 - 🔑 Création et Configuration des Clés SSH
 
 ```bash
 # Générer une nouvelle paire de clés SSH sur sa machine en local
 ssh-keygen -t ed25519 -C "un nom pour la décrire"
 ```
 
-### 1.2 Copie de la Clé Publique sur le Serveur
+### 1.5 - Copie de la Clé Publique sur le Serveur
 
 > ⚠️ _**ATTENTION** A BIEN COPIER EXCLUSIVEMENT LA CLE **id_ed25519.pub**_
 
@@ -45,7 +150,7 @@ ssh-keygen -t ed25519 -C "un nom pour la décrire"
 ssh-copy-id -i ./id_ed25519.pub utilisateur@ip_ovh
 ```
 
-### 1.3 Installation Manuelle de la Clé (si nécessaire)
+### 1.6 - Installation Manuelle de la Clé (si nécessaire)
 
 sur windows, il est possible que la commande `ssh-copy-id` ne soit pas reconnue, ainsi donc veillez suivre les étapes suivantes:
 
@@ -66,85 +171,49 @@ sudo nano authorized_keys
 cat authorized_keys
 ```
 
-Répétez les étapes pour chacun des VPS que vous disposez.
-
----
-
-## 2 - Configuration Initiale des VPS
-
-### 🌐 2.1 Connexion SSH Initiale
-
-```sh
-# Connexion au VPS via SSH
-ssh ubuntu@adresse_ip_vps
-```
-
--   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS.
-
-### 🔐 2.2 Désactivation de l'Authentification par Mot de Passe
-
-Après avoir défini nos clés SSH et explusivement nos clé SSH, on pourra supprimer la connexion par mot de passe.
-
-```sh
-# Ouvrir le fichier de configuration SSH pour modification
-sudo nano /etc/ssh/sshd_config
-
-# Désactiver l'authentification par mot de passe
-# Modifier les lignes suivantes :
-PasswordAuthentication yes # Changez la valeur en mettant no
-PermitRootLogin yes # Changez la valeur en mettant no
-
-# Soit vous devriez obtenir:
-PasswordAuthentication no
-PermitRootLogin no
-
-# Sauvegarder et fermer le fichier
-```
-
-### 🚪 2.3 Changement du Port SSH
-
-> Veillez toutefois à ne pas renseigner un numéro de port déjà utilisé sur votre système.
-> Pour plus de sécurité, utilisez un numéro entre **49152** et **65535**.
-
-_Pour l'exemple nous utiliserons les port 50001 et 50002._
+### 1.7 - 👤 Création d'un Nouvel Utilisateur
 
 ```bash
-# Modifier le port SSH par défaut pour des raisons de sécurité
-sudo nano /etc/ssh/sshd_config
+# Créer un nouvel utilisateur avec des droits restreints
+sudo adduser nom_utilisateur
 
-# Changer le port SSH
-# Pour VPS 1 : Port 50001
-# Pour VPS 2 : Port 50002
-
-# Redémarrer le service SSH pour appliquer les changements
-sudo systemctl restart sshd
-```
-
-### 👤 2.4 Création d'un Nouvel Utilisateur
-
-```bash
 # Créer un nouvel utilisateur avec des privilèges sudo
 sudo adduser nom_utilisateur
 sudo usermod -aG sudo nom_utilisateur
 ```
 
-### 2.5 Authentification différente
+### 1.8 - 🔐 Désactivation de l'Authentification par Mot de Passe
 
-**ATENTION**, dorénavent pour se conecter au serveur SSH, il faudra faire ceci:
+Après avoir défini nos clés SSH et explusivement nos clé SSH, on pourra supprimer la connexion par mot de passe.
+Pour celà, nous devons à nouveau modifier le fichier que l'on a modifié à l'étape `1.2`.
 
 ```bash
-# Connexion au VPS n°1 via SSH avec le nouvel utilisateur et le nouveau port
-ssh nom_utilisateur@adresse_ip_vps -p 50001
+# Déplacement dans le répertoire correspondant
+cd /etc/ssh
 
-# Connexion au VPS n°1 via SSH avec le nouvel utilisateur et le nouveau port
-ssh nom_utilisateur@adresse_ip_vps -p 50002
+# Ouvrir le fichier de configuration SSH pour modification
+sudo nano sshd_config
 ```
+
+Dans le fichier, modifié l'authentification par mot de passe :
+
+```bash
+# Modifier les lignes suivantes : (Origine)
+PasswordAuthentication yes # Changez la valeur en mettant no
+PermitRootLogin yes # Changez la valeur en mettant no
+
+# Soit vous devriez obtenir: (Modifié)
+PasswordAuthentication no
+PermitRootLogin no
+```
+
+Enregistrer de nouveau le fichier avec la combinaison suivante `CTRL + S` et fermer nano avec la cette autre combinaison de touches `CTRL + X`.
 
 ---
 
-## 3 - Installation et Configuration de NGINX
+## 2 - Installation et Configuration de NGINX
 
-### 🌍 3.1 Installation de NGINX
+### 🌍 2.1 Installation de NGINX
 
 ```bash
 # Mettre à jour les paquets et installer NGINX
@@ -156,7 +225,7 @@ sudo systemctl start nginx
 sudo systemctl enable nginx
 ```
 
-### 📄 3.2 Configuration de NGINX pour Plusieurs Sites
+### 📄 2.2 Configuration de NGINX pour Plusieurs Sites
 
 > **NOTE:**
 > Répétez chacune des étapes suivantes pour chaque site
@@ -179,7 +248,7 @@ sudo systemctl restart nginx
 
 ---
 
-## 4 - Installation de Docker sur le VPS
+## 3 - Installation de Docker sur le VPS
 
 ```bash
 # Installer Docker
@@ -192,9 +261,9 @@ docker -v
 
 [Source officiel](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
 
-### 🐳 4.1 Commandes Docker
+### 🐳 3.1 Commandes Docker
 
-#### 4.1.1 Windows
+#### 3.1.1 Windows
 
 ```bash
 # Télécharger une image nginx
@@ -209,7 +278,7 @@ sudo ps -ef | grep nginx
 # Afficher toutes les VM lancés
 docker ps
 
-# Afficher les conteneurs actifs
+# Afficher les conteneurs actifsAjout du fichier changelog
 docker container ls
 
 # Afficher les images disponibles
@@ -224,7 +293,7 @@ docker rm docker-nginx
 
 **Ouvrir un navigateur et saisir localhost dans la barre d'adresse afin de voir le serveur ngnx de lancé**
 
-### 4.2 Lancer le Service NGINX
+### 3.2 Lancer le Service NGINX
 
 Uniquement si le serveur n'est pas démarré.
 
@@ -235,9 +304,9 @@ sudo service nginx start
 
 ---
 
-## 🔥 5 - Sécurisation et Pare-feu
+## 🔥 4 - Sécurisation et Pare-feu
 
-### 5.1 Configuration du Pare-feu UFW
+### 4.1 Configuration du Pare-feu UFW
 
 ```bash
 # Installer et configurer UFW (Uncomplicated Firewall)

@@ -2,32 +2,20 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
-## [0.0.2] - 2024-01-15
-
-### Ajouté
-
--   Quelques changements des les textes.
-
-### Modifié
-
--   Ajout de plusieurs liens.
--   Ajout de quelques textes complémentaire.
--   Ajout de quelques commandes complémentaire pour docker
-
-### Corrigé
-
--
-
 ## [0.0.1] - 2024-01-15
 
 ### Ajouté
 
+-   Quelques changements des les textes.
 -   Lancement initial de la documentation (alpha).
 -   Description de base implémentées.
+-   Ajout du fichier changelog
 
 ### Modifié
 
--   Ajout du fichier changelog
+-   Ajout de quelques commandes complémentaire pour docker
+-   Ajout de quelques textes complémentaire.
+-   Ajout de plusieurs liens.
 
 ### Corrigé
 
