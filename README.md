@@ -31,16 +31,16 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 
 ### 1.1 Création d'une Paire de Clés SSH
 
-```sh
+```bash
 # Générer une nouvelle paire de clés SSH sur sa machine en local
 ssh-keygen -t ed25519 -C "un nom pour la décrire"
 ```
 
 ### 1.2 Copie de la Clé Publique sur le Serveur
 
-> ⚠️ **_ATTENTION A BIEN COPIER EXCLUSIVEMENT LA CLE id_ed25519.PUB_**
+> ⚠️ _**ATTENTION** A BIEN COPIER EXCLUSIVEMENT LA CLE **id_ed25519.pub**_
 
-```sh
+```bash
 # Copier la clé publique sur le serveur VPS
 ssh-copy-id -i ./id_ed25519.pub utilisateur@ip_ovh
 ```
@@ -49,7 +49,7 @@ ssh-copy-id -i ./id_ed25519.pub utilisateur@ip_ovh
 
 sur windows, il est possible que la commande `ssh-copy-id` ne soit pas reconnue, ainsi donc veillez suivre les étapes suivantes:
 
-```sh
+```bash
 # Connexion au serveur VPS via SSH
 ssh utilisateur@ip_ovh
 
@@ -122,7 +122,7 @@ sudo systemctl restart sshd
 
 ### 👤 2.4 Création d'un Nouvel Utilisateur
 
-```sh
+```bash
 # Créer un nouvel utilisateur avec des privilèges sudo
 sudo adduser nom_utilisateur
 sudo usermod -aG sudo nom_utilisateur
@@ -194,6 +194,8 @@ docker -v
 
 ### 🐳 4.1 Commandes Docker
 
+#### 4.1.1 Windows
+
 ```bash
 # Télécharger une image nginx
 docker pull nginx
@@ -204,14 +206,27 @@ docker run --name docker-nginx -p 80:80 nginx
 # Vérifier que NGINX fonctionne
 sudo ps -ef | grep nginx
 
+# Afficher toutes les VM lancés
+docker ps
+
 # Afficher les conteneurs actifs
 docker container ls
 
 # Afficher les images disponibles
 docker images ls
+
+# Stoper un container (ici docker-nginx défini plus haut)
+docker stop docker-nginx
+
+# Supprimer un container
+docker rm docker-nginx
 ```
 
+**Ouvrir un navigateur et saisir localhost dans la barre d'adresse afin de voir le serveur ngnx de lancé**
+
 ### 4.2 Lancer le Service NGINX
+
+Uniquement si le serveur n'est pas démarré.
 
 ```bash
 # Démarrer le service NGINX
