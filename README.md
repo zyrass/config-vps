@@ -13,12 +13,14 @@ Avant de commencer, assurez-vous de disposer des éléments suivants :
 3. **Connaissance de base en ligne de commande Linux**.
 4. **Un client SSH installé sur votre machine locale**.
     - Par exemple, PuTTY pour Windows ou le terminal intégré dans Linux et macOS.
-    - Sur VS Code, 3 extensions bien utile:
-        - Remote - SSH (_par Microsoft_)
-        - Remote Explorer (_par Microsoft_)
-        - Remote -- SSH:Editing Configuration Files
-5. **Un compte GitHub pour les pipelines CI/CD avec GitHub Actions**.
-6. **Connaissance de base de Docker et NGINX**.
+    - Sur VS Code, 6 extensions bien utile que vous trouverez sur le [marketplace officiel](https://marketplace.visualstudio.com/vscode):
+        - [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+        - [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+        - [Remote Exporer](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-explorer)
+        - [Remote - SSH:Editing Configuration Files](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-edit)
+        - [Remote - Tunnels](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
+        - [Remote Repositories](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-repositories)
+5. **Connaissance de base de Docker et NGINX**.
 
 Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de vos VPS.
 Suivez les étapes décrites dans ce guide pour une mise en place réussie et sécurisée de votre environnement serveur. 🚀💼🔧
@@ -30,11 +32,13 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 ### 1.1 Création d'une Paire de Clés SSH
 
 ```sh
-# Générer une nouvelle paire de clés SSH
+# Générer une nouvelle paire de clés SSH sur sa machine en local
 ssh-keygen -t ed25519 -C "un nom pour la décrire"
 ```
 
 ### 1.2 Copie de la Clé Publique sur le Serveur
+
+> ⚠️ **_ATTENTION A BIEN COPIER EXCLUSIVEMENT LA CLE id_ed25519.PUB_**
 
 ```sh
 # Copier la clé publique sur le serveur VPS
@@ -42,6 +46,8 @@ ssh-copy-id -i ./id_ed25519.pub utilisateur@ip_ovh
 ```
 
 ### 1.3 Installation Manuelle de la Clé (si nécessaire)
+
+sur windows, il est possible que la commande `ssh-copy-id` ne soit pas reconnue, ainsi donc veillez suivre les étapes suivantes:
 
 ```sh
 # Connexion au serveur VPS via SSH
@@ -60,6 +66,8 @@ sudo nano authorized_keys
 cat authorized_keys
 ```
 
+Répétez les étapes pour chacun des VPS que vous disposez.
+
 ---
 
 ## 2 - Configuration Initiale des VPS
@@ -74,6 +82,8 @@ ssh ubuntu@adresse_ip_vps
 -   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS.
 
 ### 🔐 2.2 Désactivation de l'Authentification par Mot de Passe
+
+Après avoir défini nos clés SSH et explusivement nos clé SSH, on pourra supprimer la connexion par mot de passe.
 
 ```sh
 # Ouvrir le fichier de configuration SSH pour modification
