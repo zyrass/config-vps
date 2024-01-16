@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
+## [0.0.2] - 2024-01-16
+
+### Ajouté
+
+-   Ajout d'un folder Nginx avec un fichier permettant de comprendre les commandes de bases d'nginx.
+
+### Modifié
+
+-   Structure
+
+### Corrigé
+
+-
+
 ## [0.0.1] - 2024-01-15
 
 ### Ajouté
