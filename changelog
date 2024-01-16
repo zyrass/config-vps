@@ -6,6 +6,7 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 ### Ajouté
 
+-   Changement du Groupe pour une Administration Saine d'Nginx
 -   Ajout d'un folder Nginx avec un fichier permettant de comprendre les commandes de bases d'nginx.
 
 ### Modifié
