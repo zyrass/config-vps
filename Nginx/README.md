@@ -4,6 +4,42 @@
 
 📘 _Ce guide offre un aperçu détaillé pour gérer Nginx, que vous soyez un développeur débutant ou intermédiaire. La compréhension de ces commandes est essentielle pour une gestion efficace de vos serveurs web. Gardez ce guide à portée de main pour vous aider dans vos tâches quotidiennes !_
 
+## 🛠️ Changement du Groupe pour une Administration Saine d'Nginx
+
+### Préambule
+
+Par défaut, le répertoire `nginx` situé dans `/etc/nginx` est associé au groupe `root`. Pour une gestion plus facile, vous pouvez changer ce groupe pour qu'il corresponde à votre utilisateur (ex: `ubuntu` si vous n'avez pas modifié ce paramètre).
+
+### Étapes pour Changer le Groupe
+
+```bash
+# Connaître le groupe auquel appartient l'utilisateur
+groups ubuntu
+
+# Aller au répertoire racine d'Nginx
+cd /etc
+
+# Vérifier le propriétaire et le groupe actuel
+ls -la | grep nginx
+# Résultat attendu: drwxr-xr-x  8 root root       4096 Jan 15 14:13 nginx
+# 'root root' signifie que le propriétaire et le groupe sont tous deux 'root'.
+
+# Changer le groupe récursivement pour 'nginx'
+sudo chgrp -R ubuntu nginx/
+
+# Vérifier le changement
+ls -la | grep nginx
+# Résultat attendu: drwxr-xr-x  8 root ubuntu     4096 Jan 15 14:13 nginx
+# 'root ubuntu' montre que le groupe a été changé en 'ubuntu'.
+
+# Ajouter les permissions d'écriture pour le nouveau groupe sur 'nginx' et ses sous-répertoires
+sudo chmod g+w -R nginx/
+```
+
+🔑 **Note :** Cette méthode permet de faciliter la gestion des fichiers d'Nginx pour les utilisateurs non-root, en améliorant la sécurité et la flexibilité dans l'administration du serveur.
+
+🌐 En suivant ces étapes, vous assurez une gestion plus sûre et plus pratique de votre serveur Nginx, en alignant les permissions avec les besoins de votre environnement de travail.
+
 ## 📂 Répertoires Importants
 
 > **En connaissant bien l'emplacement des répertoires qui vont suivrent, vous serez mieux préparé pour gérer et dépanner vos serveurs Nginx. Assurez-vous de bien explorer et comprendre ces chemins pour optimiser votre expérience avec Nginx.**
