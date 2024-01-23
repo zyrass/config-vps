@@ -180,3 +180,49 @@ sudo nginx -s quit
 ```
 
 🔧 Cette séquence montre comment démarrer Nginx avec le service, le recharger avec un signal pour appliquer des modifications, et l'arrêter proprement avec un autre signal.
+
+## Contrôler qu'un fichier de config nginx est valide
+
+Si on dispose d'un fichier de congiguration erroné, **ce n'est pas grave car nginx utilisera la dernière configuration fonctionnel**.
+
+```bash
+# Découvrir le fichier de configuration utilisé par nginx (-T en majuscule)
+sudo nginx -T
+
+# Contrôler le bon fonctionnement du fichier (-t en minuscule)
+sudo nginx -t
+```
+
+Si une erreur est recontré le retour de la commande `sudo nginx -t` affichera:
+
+```sh
+nginx: [emerg] invalid number of arguments in "user" directive in /etc/nginx/nginx.conf:6
+nginx: configuration file /etc/nginx/nginx.conf test failed
+```
+
+Si en revanche le fichier de configuration est valide alors on obtiendra:
+
+```sh
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+## Directive simple - directive de block
+
+### Directive simple
+
+```text
+log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+	        '$status $body_bytes_sent "$http_referer" '
+                '"$http_user_agent" "$http_x_forwarded_for" ';
+```
+
+### Directive de block
+
+```text
+http {
+	log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+			'$status $body_bytes_sent "$http_referer" '
+			'"$http_user_agent" "$http_x_forwarded_for" ';
+}
+```
