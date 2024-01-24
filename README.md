@@ -81,7 +81,7 @@ sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y
 Je vous propose ici d'installer quelques paquets absents de la distribution `Rocky Linux 9`.
 
 ```sh
-# Nano - Editeur en ligne de commande permettan de remplacer vim qui n'est pas forcément simple à prendre en main
+# Nano - Editeur en ligne de commande permettant de remplacer vim qui n'est pas simple à prendre en main pour un non initié.
 sudo dnf install nano -y
 ```
 
@@ -89,9 +89,9 @@ _D'autres viendront si le besoin s'en fait ressentir_
 
 ### 1.4 - 👤 Création d'un Nouvel Utilisateur
 
-#### Pourquoi, j'ai déjà un compte ?
+#### Pourquoi, j'ai déjà accès au compte rocky ?
 
-Dans la gestion des serveurs et la pratique de la cybersécurité, il est généralement recommandé de créer et d'utiliser un nouvel utilisateur avec des droits sudo pour l'administration du système, plutôt que d'utiliser directement l'utilisateur par défaut (comme `rocky` dans le cas de Rocky Linux) ou l'utilisateur `root`. Voici pourquoi :
+Dans la gestion des serveurs et la pratique de la cybersécurité, il est généralement recommandé de créer et d'utiliser un nouvel utilisateur avec des droits sudo pour l'administration du système, plutôt que d'utiliser directement l'utilisateur par défaut (comme `rocky` dans le cas de Rocky Linux) ou, l'utilisateur `root` qui correspond au super administrateur. Voici pourquoi :
 
 1. **Sécurité Améliorée :** L'utilisation d'un utilisateur spécifique pour les tâches d'administration réduit les risques associés à l'utilisation du compte `root` en permanence. Les comptes `root` ou les comptes par défaut sont souvent ciblés par des attaques automatisées.
 
@@ -119,7 +119,7 @@ id rocky
 uid=1000(rocky) gid=1000(rocky) groups=1000(rocky),4(adm),190(systemd-journal)
 ```
 
-Pour ajouter un utilisateur saisisez:
+Pour ajouter un utilisateur, (pour nous, il s'agit ici de guidevps) saisisez:
 
 ```sh
 sudo adduser guidevps
@@ -130,11 +130,14 @@ Pour ajouter des droits sudo à notre utilisateur:
 ```sh
 sudo usermod -aG adm guidevps
 sudo usermod -aG systemd-journal totovps
-sudo usermod -aG wheel guidevps # ATTENTION permet de donner le droit d'utiliser "su"
+
+# A utiliser avec prudence, permet de donner le droit d'utiliser "su"
+sudo usermod -aG wheel guidevps
 
 # Si vous souhaitez retirer un groupe, exemple adm
 sudo usermod -G guidevps,adm guidevps
-# Utilisation de nouveau de la commande id user
+
+# Contrôler les changements en réutilisant de nouveau de la commande "id user"
 id guidevps
 # Affichera:
 uid=1001(guidevps) gid=1001(rocky) groups=1001(guidevps),190(systemd-journal)
@@ -143,8 +146,9 @@ uid=1001(guidevps) gid=1001(rocky) groups=1001(guidevps),190(systemd-journal)
 # il faudra saisir
 sudo usermod -G guidevps guidevps
 
-# Utilisation de nouveau de la commande id user
+# Pour de nouveau contrôler les changements effectués, on saisiera de nouveau "id user"
 id guidevps
+# Affichera:
 uid=1001(guidevps) gid=1001(rocky) groups=1001(guidevps)
 ```
 
@@ -153,21 +157,17 @@ Il est possible de créer un mot de passe por notre utilisateur
 ```sh
 sudo passwd guidevps
 # Après avoir exécuté cette commande, vous serez invité à entrer et confirmer le nouveau mot de passe.
+# ⚠️ Sur linux les caractères ne s'affiche pas lors de la saisie d'un mot de passe ⚠️
 ```
 
-Vérification du comtpe (Test de la Connexion)
+Vérification du compte (Teste de la connexion avec un accès en **root** notre nouvel utilisateur "guidevps")
 
 ```sh
 sudo su - guidevps
-# Il faudra saisir le mot de passe fraichement créé. (VOUS SEREZ CONNECTEZ AVEC LE COMPTE guidevps)
-# ⚠️ Sur linux les caractères ne s'affiche pas lors de la sisi d'un mot de passe ⚠️
-```
+# Il faudra saisir le mot de passe fraichement créé.
+# remarquez le nom d'utilisateur dans le terminal qui va changer en passant de rocky@xxxxxx à guidevps@xxxxxxx
 
-Nous vérifions que nous avons bien accorder l'accès en root pour notre utilisateur `guidevps`.
-
-> **INFORMATION - le mot de passe du compte `guidevps` sera demandé.**
-
-```sh
+# Vérification accès root
 sudo whoami
 # Si la commande retourne root, cela signifie que cet utilisateur a bien des droits de superadministrateur.
 ```
@@ -181,7 +181,7 @@ ssh-keygen -t ed25519 -C "description_de_la_cle"
 # remplacer "description_de_la_cle" par ce que vous voulez
 ```
 
-voir le contenu de cette clé (_besoin un peu plus tard_)
+Voir le contenu de cette clé (_besoin un peu plus tard_)
 
 ```sh
 cat cat C:/Users/votre_user_windows/.ssh/id_ed25519.pub
@@ -190,15 +190,14 @@ cat cat C:/Users/votre_user_windows/.ssh/id_ed25519.pub
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAC+16EGsoJR0t3A1wGhZ0uYur7JkE3jNxiRtl5uCexS description_de_la_cle
 ```
 
-✅ - En tant que clé publique elle peut être divulgué sans risque, **ce qui est important c'est de ne jamais divulguer la clé privé qui correspond au même nom sans le .pub**
+✅ - En tant que clé publique elle peut être divulgué sans risque, **ce qui est important c'est de ne jamais divulguer la clé privé. Elle se trouve au même endroit dépouvue du .pub**.
 
 ### 1.6 - Copie de la Clé Publique sur notre VPS (server)
 
 > ⚠️ **ATTENTION** - Assurez-vous de copier uniquement le contenu de la clé **id_ed25519.pub**
 
-Copier la clé publique sur le serveur VPS
-
 ```sh
+# Copie de la clé publique sur le serveur VPS
 ssh-copy-id -i ./id_ed25519.pub guidevps@50.60.70.80
 # Le mot de passe du compte sera potentiellement demandé.
 ```
@@ -227,7 +226,7 @@ sudo nano authorized_keys
 cat authorized_keys
 ```
 
-✅ - Si vous disposez de plusieurs ordinateurs et que vous souhaitez accedez en ssh sur votre serveur, rien de plus simple, chaque clé sera ajouter à la suite de la première.
+✅ - Si vous disposez de plusieurs ordinateurs et que vous souhaitez accedez en ssh sur votre serveur, chaque clé devra être ajouter à la suite de la première.
 
 ### 1.7 - 🚪 Modification du Port d'Écoute SSH par Défaut
 
@@ -236,7 +235,7 @@ Utilisez un port non-standard, de préférence entre **49152** et **65535**.
 
 > La modification de ce paramètre, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées. Pour cela, modifiez le fichier de configuration du service avec l'éditeur de texte de votre choix (_**nano** est utilisé dans le terminal dans cet exemple_) :
 
-**Exemple ici avec le port 50001** :
+**Je prendrais l'exemple du port 50001 pour oute la durée de ce guide.** :
 
 ```sh
 # Passer en superadministrateur (root)
@@ -248,7 +247,7 @@ cd /etc/ssh
 # Voir le contenu du répertoire ssh
 ls ssh
 
-# Edition du fichier de configuration avec vim
+# Edition du fichier de configuration avec nano
 nano sshd_config
 ```
 
@@ -283,12 +282,12 @@ Donc ici, nous avons décommenté et remplacé le nombre `22` par le numéro de 
 > Enregistrez (`CTRL + S`) et quittez (`CTRL + X`). Puis redémarrer le service SSH pour appliquer les changements :
 
 ```sh
+# sudo n'est pas recquis car nous nommes toujours connecté en root (super administrateur)
 systemctl restart sshd
 
-# En cas de problème, redémarrez le VPS : sudo reboot
 # Cela devrait être suffisant pour appliquer les changements.
 # Dans le cas contraire, redémarrez le VPS avec cette commande :
-sudo reboot
+reboot
 ```
 
 ⚠️ **ATENTION** - Pour se connecter après ce changement :
@@ -320,14 +319,13 @@ Modifiez :
 
 ```sh
 PasswordAuthentication yes # disponible sous rocky linux 9
-PermitRootLogin yes # non disponible sous rocky linux 9
+PermitRootLogin yes # non disponible sous rocky linux 9 (mais on peut l'ajouter)
 ```
 
 en :
 
 ```bash
 PasswordAuthentication no
-PermitRootLogin no # A voir si il faut l'ajouter ou non
 ```
 
 Enregistrez (`CTRL + S`) et quittez (`CTRL + X`), puis redémarrez SSH.
