@@ -1,6 +1,6 @@
-# Guide Complet de Configuration et Sécurisation d'un VPS sur Rocky Linux 9
+# Guide Complet de Configuration et Sécurisation d'un VPS avec NGINX et NGINX Amplify sur Rocky Linux 9
 
-> Ce guide approfondi vous guide pas à pas dans le processus de configuration et de sécurisation de votre VPS sous Rocky Linux 9. Il couvre tout, depuis la création des clés SSH jusqu'à la création d'un compte utilisateur en passant par la suppression d'une authentification par mot de passe. Chaque étape est minutieusement détaillée pour assurer une mise en place efficace et une sécurité optimale de votre environnement de test ou de production. 🚀💼🔧🌐🔒
+> Ce guide approfondi vous guide pas à pas dans le processus de configuration et de sécurisation de votre VPS sous Rocky Linux 9. Il couvre tout, depuis la création des clés SSH jusqu'à l'installation de NGINX, en passant par NGINX Amplify – un agent performant et optimisé – et Docker, ainsi que la configuration du pare-feu. Chaque étape est minutieusement détaillée pour assurer une mise en place efficace et une sécurité optimale de votre environnement serveur. 🚀💼🔧🌐🔒
 
 ---
 
@@ -11,6 +11,7 @@ Avant de commencer, vérifiez que vous disposez de :
 1. **Un VPS avec Rocky Linux 9 déjà installé**.
 2. **Accès root ou avec des privilèges sudo**.
 3. **Connaissances de base en ligne de commande Linux**.
+4. **Notions de base sur Docker et NGINX**.
 5. **Un client SSH sur votre machine locale**
 
     - Par exemple, PuTTY pour Windows ou le terminal intégré dans Linux et macOS.
@@ -22,17 +23,18 @@ Avant de commencer, vérifiez que vous disposez de :
         - [Remote - Tunnels](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
         - [Remote Repositories](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-repositories)
 
-Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de votre VPS. Suivez ce guide, étape par étape pour une mise en place réussie et sécurisée de votre environnement. 🚀💼🔧
+Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de votre VPS.
+Suivez les étapes décrites dans ce guide pour une mise en place réussie et sécurisée de votre environnement serveur. 🚀💼🔧
 
 ---
 
-> **Pour sécuriser le contenu qui sera le mien, je vais utiliser un pseudo et une ip random.**
+> **Pour les besoins de ce guide, nous allons utiliser un pseudo et une ip random.**
 
--   **Pseudo utilisé prochainement** : `guidevps` (_en minuscule_)
+-   **Pseudo utilisé** : `guidevps` (_en minuscule_)
 -   **IP utilisée** : `50.60.70.80` (_Avec mes tests cette ip n'est pas utilisé_)
 
 🔴 **NOTE IMPORTANTE** 🔴
-**Il va de soit qu'il vous faudra utiliser vos identifiants qui vous auront été transmis par mail. (par défaut sur OVH, `rocky` sera le nom d'utilisateur lambda)**
+**Il va de soit qu'il vous faudra utiliser vos identifiants qui vous auront été transmis par mail.**
 
 ---
 
@@ -40,24 +42,25 @@ Avec ces pré-requis en place, vous êtes prêt à commencer la configuration de
 
 1. **🌐 Connexion SSH Initiale**
 
-    1. **🔄 Mettre à jour son VPS** - (_à effectuer régulièrement_)
-    2. **📦 Paquets à installer sur Rocky Linux 9**
+    1. . **Mettre à jour son VPS** - (_à effectuer régulièrement_)
+    2. **Paquets à installer sur Rocky Linux 9**
         - nano (_éditeur en ligne de commande_)
     3. **👤 Création d'un Nouvel Utilisateur**
     4. **🔑 Création et Configuration des Clés SSH**
-    5. **🔗 Copie de la Clé Publique sur le Serveur**
-    6. **🔧 Installation Manuelle de la Clé (_si nécessaire_)**
+    5. **Copie de la Clé Publique sur le Serveur**
+    6. **Installation Manuelle de la Clé (_si nécessaire_)**
     7. **🚪 Modifier le port d'écoute SSH par défaut**
     8. **🔐 Désactivation de l'Authentification par Mot de Passe**
-    2. **Installation de NGINX Ampify**
+
+2. **Installation de NGINX Ampify**
 
 ### 1.1 - 🌐 Connexion SSH Initiale
 
-✅ _unique rappel sur le faite que nous utiliserons uniquement un pseudo et une ip fictive tout au long de ce guide et qu'il devra être remplacer par le votre_ (**guidevps**).
+✅ _unique rappel sur le faite que nous utiliserons uniquement un pseudo et une ip fictive tout au long de ce guide_.
 _Veillez à remplacer ces identifiants de connexion par les vôtres_.
 
 ```sh
-# Connexion au VPS via SSH (Toute première fois)
+# Connexion au VPS via SSH
 ssh rocky@50.60.70.80
 ```
 
@@ -66,7 +69,7 @@ ssh rocky@50.60.70.80
 
 ### 1.2 - Mettre à jour son VPS
 
-🔥 Mettre à jour régulièrement votre système est crucial pour la sécurité du VPS.
+Mettre à jour régulièrement votre système est crucial pour la sécurité du VPS.
 En effet, les développeurs de distributions et de systèmes d’exploitation proposent de fréquentes mises à jour de paquets, très souvent pour des raisons de sécurité.
 
 ```bash
@@ -74,11 +77,11 @@ En effet, les développeurs de distributions et de systèmes d’exploitation pr
 sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y
 ```
 
-> **DNF** est le gestionnaire de paquets pour rocky linux 9
+🔥 **IMPORTANT** - **Effectuez régulièrement cette opération pour maintenir un système à jour**.
 
 ### 1.3 - Installer des paquets facultatif mais utile
 
-Je vous propose ici d'installer quelques paquets absents de la distribution `Rocky Linux 9`.
+Je vous propose ici d'installer des paquets absents de la distribution `Rocky Linux 9`.
 
 ```sh
 # Nano - Editeur en ligne de commande permettan de remplacer vim qui n'est pas forcément simple à prendre en main
