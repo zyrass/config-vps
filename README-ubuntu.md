@@ -4,6 +4,12 @@
 
 ---
 
+## A EDITER
+
+```sh
+scp -r C:/Users/toto/Documents/www/Vue/projects/nom_projet/client-build/* demo@WW.XX.YY.ZZ:/var/www/nom_projet.fr/html
+```
+
 ## 📋 Pré-requis
 
 Avant de commencer, vérifiez que vous disposez de :
