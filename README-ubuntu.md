@@ -1,6 +1,6 @@
 # 📚 Guide Complet de Configuration et Sécurisation d'un VPS avec NGINX et NGINX Amplify
 
-> Ce guide approfondi vous guide pas à pas dans le processus de configuration et de sécurisation de votre VPS. Il couvre tout, depuis la création des clés SSH jusqu'à l'installation de NGINX, en passant par NGINX Amplify – un agent performant et optimisé – et Docker, ainsi que la configuration du pare-feu. Chaque étape est minutieusement détaillée pour assurer une mise en place efficace et une sécurité optimale de votre environnement serveur. 🚀💼🔧🌐🔒
+> Ce guide approfondi vous guide pas à pas dans le processus de configuration et de sécurisation de votre VPS. Il couvre tout, depuis la création des clés SSH jusqu'à l'installation de NGINX, en passant par NGINX Amplify – un agent performant et optimisé, ainsi que la configuration du pare-feu. Chaque étape est minutieusement détaillée pour assurer une mise en place efficace et une sécurité optimale de votre environnement serveur. 🚀💼🔧🌐🔒
 
 ---
 
@@ -19,7 +19,7 @@ Avant de commencer, vérifiez que vous disposez de :
 3. **Connaissances de base en ligne de commande Linux**.
 4. **Un client SSH sur votre machine locale**
 
-    - Par exemple, PuTTY pour Windows ou le terminal intégré dans Linux et macOS.
+    - Par exemple, PuTTY pour **_Windows_** ou le terminal intégré dans Linux et macOS.
     - Sur VS Code, utilisez ces extensions utiles disponibles sur le [marketplace officiel](https://marketplace.visualstudio.com/vscode) :
         - [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
         - [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
@@ -38,33 +38,33 @@ Suivez les étapes décrites dans ce guide pour une mise en place réussie et s�
 ## 1 - Configuration Initiale de son VPS
 
 1. **🌐 Connexion SSH Initiale**
-2. **Mettre à jour son VPS**
-3. **🚪 Modifier le port d'écoute SSH par défaut**
-4. **🔑 Création et Configuration des Clés SSH**
-5. **Copie de la Clé Publique sur le Serveur**
-6. **Installation Manuelle de la Clé (_si nécessaire_)**
-7. **👤 Création d'un Nouvel Utilisateur**
-8. **🔐 Désactivation de l'Authentification par Mot de Passe**
-9. **Installation de NGINX Ampify**
+    1. **⬆️ Mettre à jour son VPS**
+    2. **🚪 Modifier le port d'écoute SSH par défaut**
+    3. **🔑 Création et Configuration des Clés SSH**
+    4. **🔒 Copie de la Clé Publique sur le Serveur**
+    5. **🛠️ Installation Manuelle de la Clé (_si nécessaire_)**
+    6. **👤 Création d'un Nouvel Utilisateur**
+    7. **🔐 Désactivation de l'Authentification par Mot de Passe**
+2. **🚀 Installation de NGINX Ampify**
 
 ### 1.1 - 🌐 Connexion SSH Initiale
 
 ```sh
-# Connexion au VPS via SSH
+# Connexion au VPS via SSH via un terminal
 ssh utilisateur@adresse_ip_vps
 ```
 
--   Remplacez `utilisateur` par votre nom d'utilisateur (ex: `ubuntu` pour un VPS OVH).
--   Remplacez `adresse_ip_vps` par l'adresse IP de votre VPS, communiquée par email.
+-   Remplacez **_`utilisateur`_** par votre nom d'utilisateur (ex: **_`ubuntu`_** pour un système Ubuntu sur un VPS chez OVH).
+-   Remplacez **_`adresse_ip_vps`_** par l'adresse IP de votre VPS qui vous aura été communiquée par email.
 
 ### 1.2 - Mettre à jour son VPS
 
-Mettre à jour régulièrement votre système est crucial pour la sécurité du VPS.
+Mettre à jour régulièrement son système est crucial pour la sécurité du VPS.
 En effet, les développeurs de distributions et de systèmes d’exploitation proposent de fréquentes mises à jour de paquets, très souvent pour des raisons de sécurité.
 
 ```bash
 # Mise à jour de la liste des paquets et des paquets eux-mêmes
-sudo apt update && sudo apt upgrade -y
+sudo apt update -y && sudo apt upgrade -y && sudo apt autoremove -y
 ```
 
 🔥 **IMPORTANT** - **Effectuez régulièrement cette opération pour maintenir un système à jour**.
@@ -74,9 +74,10 @@ sudo apt update && sudo apt upgrade -y
 Changer le port SSH par défaut (**22**) au profit d'un port différent réduit le risque d'attaques automatisées. (_tentatives de hack du serveur par des robots_)
 Utilisez un port non-standard, de préférence entre **49152** et **65535**.
 
-> La modification de ce paramètre, a, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées. Pour cela, modifiez le fichier de configuration du service avec l'éditeur de texte de votre choix (_**nano** est utilisé dans le terminal dans cet exemple_) :
+> La modification de ce paramètre, a, est une mesure simple pour renforcer la protection de votre serveur contre les attaques automatisées.
+> **Pour cela, il faut modifier le fichier de configuration du service avec l'éditeur de texte de votre choix (\_**nano** est utilisé dans le terminal dans cet exemple\_) :**
 
-**Exemple ici avec le port 50001** :
+**Exemple ici avec la définition du port 50001** :
 
 ```bash
 # Passer en administrateur
@@ -118,8 +119,8 @@ Port 50001
 # ... encore d'autres lignes de code
 ```
 
-Donc ici, nous avons remplacé le nombre `22` par le numéro de port de suivant `50001`.
-Enregistrez (`CTRL + S`) et quittez (`CTRL + X`). Puis effectuez la commande suivante :
+Donc ici, nous avons remplacé le nombre **_`22`_** par le numéro de port de suivant **_`50001`_**.
+Enregistrez (**_`CTRL + S`_**) et quittez (**_`CTRL + X`_**). Puis effectuez la commande suivante :
 
 ```bash
 # Redémarrer le service SSH pour appliquer les changements.
